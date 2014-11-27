@@ -1,5 +1,4 @@
---reporter dot
---ui bdd
 --require coffee-script
 --require chai
+--reporter tap
 --compilers coffee:coffee-script/register

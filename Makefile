@@ -9,8 +9,6 @@ build:
 	coffee --output lib --compile src
 
 package: clean build
-	echo "TODO: package"
-	exit 1
 
 publish: package
 	echo "TODO: Add publish to npm"
@@ -21,6 +19,6 @@ lint:
 	exit 1
 
 test:
-	foreman run --env=test/env node_modules/.bin/mocha -R progress $(TESTARGS)
+	foreman run --env=test/env node_modules/.bin/mocha $(TESTARGS)
 
 .PHONY: clean default build package publish lint test
