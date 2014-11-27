@@ -189,6 +189,8 @@ class DB extends EventEmitter
 
   ###
   Wrapper atop execute(...) for queries that are expected to return a single row.
+  If the result contains no rows then "null" will be returned.
+  If the result contains more than one row then an Error will be returned.
 
   NOTE: This function may be called with two arguments (skipping the "params" arg).
 
@@ -202,6 +204,8 @@ class DB extends EventEmitter
       cb = params
       params = []
     @execute sql, params, (err, result) =>
+      if result?.rows.length > 1
+        return cb(new Error('Expected 1 row but result returned ' + result.rows.length + 'rows'))
       cb(err, result?.rows[0] || null)
 
   ###
@@ -233,4 +237,4 @@ class DB extends EventEmitter
       pool.drain () ->
         pool.destroyAllNow cb || ->
 
-module.exports = (config, opts) -> new DB(config, opts)
+module.exports = (config, opts) -> new DB(config || process.env.DATABASE_URL, opts)
