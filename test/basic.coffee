@@ -35,6 +35,11 @@ describe 'db.queryOne', () ->
       expect(row).to.be.null
       done()
 
+  it 'should return an error for results with more than one row', (done) ->
+    db.queryOne 'SELECT x FROM generate_series(1,10) x', (err, row) ->
+      expect(err).to.be.not.null
+      done()
+
 describe 'db.query', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.query 'BAD SQL GOES HERE', (err, row) ->
