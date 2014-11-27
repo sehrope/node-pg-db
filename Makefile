@@ -6,7 +6,7 @@ clean:
 
 build:
 	npm install
-	coffee --output lib --compile src
+	coffee --bare --output lib --compile src
 
 package: clean build
 
