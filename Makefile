@@ -5,16 +5,20 @@ clean:
 	rm -rf lib
 
 build:
+	npm install
 	coffee --output lib --compile src
 
 package: clean build
 	echo "TODO: package"
+	exit 1
 
 publish: package
 	echo "TODO: Add publish to npm"
+	exit 1
 
 lint:
-	grunt lint
+	echo "TODO: Add lint"
+	exit 1
 
 test:
 	foreman run --env=test/env node_modules/.bin/mocha -R progress $(TESTARGS)
