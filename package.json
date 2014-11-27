@@ -1,0 +1,21 @@
+{
+  "name": "pg-db",
+  "version": "0.0.1",
+  "description": "Wrapper for pg that adds simpler API, transactions, and more.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^0.9",
+    "chai": "^1.10",
+    "mocha": "^2.0.1",
+    "pg.js": "^3",
+    "rand-token": "^0.2"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.8.0"
+  }
+}

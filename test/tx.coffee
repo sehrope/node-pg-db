@@ -1,0 +1,125 @@
+async = require 'async'
+{assert, expect} = require 'chai'
+db = require('../lib/index')(process.env.DATABASE_URL)
+
+###
+Returns the current transaction in from the database.
+###
+getTransactionId = (cb) ->
+  db.queryOne 'SELECT txid_current() AS tx', (err, row) ->
+    if err then return cb(err)
+    return cb(null, row.tx)
+
+###
+Same as getTransactionId(...) but with a 100 ms delay (server side).
+###
+slowGetTransactionId = (cb) ->
+  db.queryOne 'SELECT txid_current() AS tx FROM pg_sleep(.1)', (err, row) ->
+    if err then return cb(err)
+    return cb(null, row.tx)
+
+###
+Same as getTransactionId(...) but with a 100 ms delay (client side).
+###
+fakeSlowGetTransactionId = (cb) -> setTimeout getTransactionId, 100, cb
+
+noop = (cb) -> process.nextTick cb, null
+
+describe 'db.tx', () ->
+  it 'should not have _tx defined on the domain after the transaction completes', (done) ->
+    db.tx noop, (err) ->
+      expect(err).to.be.not.ok()
+      expect(process.domain?._tx).to.be.not.ok()
+      done()
+
+  it 'should have _tx defined on the domain during the transaction', (done) ->
+    db.tx (cb) ->
+      expect(process.domain._tx).to.be.ok()
+      cb()
+    , (err) ->
+      expect(err).to.be.not.ok()
+      done()
+
+  it 'should return different transaction ids for separate transactions', (done) ->
+    async.parallel [
+      (cb) -> db.tx getTransactionId, cb
+      (cb) -> db.tx slowGetTransactionId, cb
+      (cb) -> db.tx getTransactionId, cb
+      (cb) -> db.tx fakeSlowGetTransactionId, cb
+      (cb) -> db.tx getTransactionId, cb
+    ], (err, results) ->
+      expect(err).to.be.not.ok()
+      expect(results).to.be.a('array')
+      expect(results.length).to.be.equal(5)
+      txIds = {}
+      for txId in results
+        expect(txId of txIds).to.be.false()
+      done()
+
+describe 'db.tx.series', () ->
+  it 'should return the same transaction id for multiple statements', (done) ->
+    db.tx.series [
+      getTransactionId
+      slowGetTransactionId
+      fakeSlowGetTransactionId
+      slowGetTransactionId
+      getTransactionId
+    ], (err, results) ->
+      expect(err).to.be.null()
+      expect(results).to.be.a('array')
+      expect(results.length).to.be.equal(5)
+      txId = results[0]
+      # NOTE: node-postgres returns bigint as a string:
+      expect(txId).to.be.a('string')
+      for result in results
+        expect(result).to.be.equal(txId)
+      done()
+
+describe 'db.tx.parallel', () ->
+  it 'should return the same transaction id for multiple statements', (done) ->
+    db.tx.parallel [
+      getTransactionId
+      slowGetTransactionId
+      fakeSlowGetTransactionId
+      slowGetTransactionId
+      getTransactionId
+    ], (err, results) ->
+      expect(err).to.be.null()
+      expect(results).to.be.a('array')
+      expect(results.length).to.be.equal(5)
+      txId = results[0]
+      # NOTE: node-postgres returns bigint as a string:
+      expect(txId).to.be.a('string')
+      for result in results
+        expect(result).to.be.equal(txId)
+      done()
+
+describe 'db.tx.queryOne', () ->
+  it 'should return an error when no transaction exists ', (done) ->
+    db.tx.queryOne 'SELECT 1 AS x', (err, row) ->
+      expect(err).to.be.ok()
+      done()
+
+  it 'should not return an error when a transaction exists ', (done) ->
+    db.tx (cb) ->
+      db.tx.queryOne 'SELECT 1 AS x', (err, row) ->
+        expect(err).to.be.not.ok()  
+        expect(row).to.be.ok()
+        expect(row.x).to.be.equal(1)
+        cb(null)
+    , done
+
+describe 'db.tx.query', () ->
+  it 'should return an error when no transaction exists ', (done) ->
+    db.tx.query 'SELECT 1 AS x', (err, rows) ->
+      expect(err).to.be.ok()
+      done()
+
+  it 'should not return an error when a transaction exists ', (done) ->
+    db.tx (cb) ->
+      db.tx.query 'SELECT 1 AS x', (err, rows) ->
+        expect(err).to.be.not.ok()  
+        expect(rows).to.be.ok()
+        expect(rows.length).to.be.equal(1)
+        cb(null)
+    , done

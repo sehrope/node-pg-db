@@ -1,0 +1,76 @@
+async = require 'async'
+{assert, expect} = require 'chai'
+db = require('../lib/index')(process.env.DATABASE_URL)
+
+describe 'db.execute', () ->
+  it 'should return an error if the SQL is invalid', (done) ->
+    db.execute 'BAD SQL GOES HERE', (err, result) ->
+      expect(err).to.be.not.null()
+      done()
+
+  it 'should return the row for single row queries', (done) ->
+    db.execute 'SELECT 1 AS x', (err, result) ->
+      expect(err).to.be.null
+      expect(result).to.be.not.null
+      expect(result).to.be.a('object')
+      expect(result.rows).to.be.a('array')
+      done()
+
+describe 'db.queryOne', () ->
+  it 'should return an error if the SQL is invalid', (done) ->
+    db.queryOne 'BAD SQL GOES HERE', (err, row) ->
+      expect(err).to.be.not.null()
+      done()
+
+  it 'should return the row for single row queries', (done) ->
+    db.queryOne 'SELECT 1 AS x', (err, row) ->
+      expect(err).to.be.null
+      expect(row).to.be.not.null
+      expect(row.x).to.equal(1)
+      done()
+
+  it 'should return null for empty results for single row queries', (done) ->
+    db.queryOne 'SELECT 1 AS x WHERE false', (err, row) ->
+      expect(err).to.be.null
+      expect(row).to.be.null
+      done()
+
+describe 'db.query', () ->
+  it 'should return an error if the SQL is invalid', (done) ->
+    db.query 'BAD SQL GOES HERE', (err, row) ->
+      expect(err).to.be.not.null()
+      done()
+
+  it 'should return an array of rows for multi row queries', (done) ->
+    db.query 'SELECT x FROM generate_series(1,10) x', (err, rows) ->
+      expect(err).to.be.null
+      expect(rows).to.be.a('array')
+      expect(rows.length).to.be.equal(10)
+      expect(rows[0].x).to.be.equal(1)
+      done()
+
+  it 'should return an empty array for empty results for multi row queries', (done) ->
+    db.query 'SELECT x FROM generate_series(1,10) x WHERE false', (err, rows) ->
+      expect(err).to.be.null
+      expect(rows).to.be.a('array')
+      expect(rows.length).to.be.equal(0)
+      done()
+
+  it 'should return an empty array for empty results for multi row queries', (done) ->
+    db.query 'SELECT x FROM generate_series(1,10) x WHERE false', (err, rows) ->
+      expect(err).to.be.null
+      expect(rows).to.be.a('array')
+      expect(rows.length).to.be.equal(0)
+      done()
+
+describe 'db.update', () ->
+  it 'should return an error if the SQL is invalid', (done) ->
+    db.update 'BAD SQL GOES HERE', (err, rowCount) ->
+      expect(err).to.be.not.null()
+      done()
+
+  it 'should return a row count for DML statements', (done) ->
+    db.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
+      expect(err).to.be.null
+      expect(rowCount).to.be.a('number')
+      done()

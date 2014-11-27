@@ -1,0 +1,5 @@
+--reporter dot
+--ui bdd
+--require coffee-script
+--require chai
+--compilers coffee:coffee-script/register
