@@ -242,4 +242,8 @@ class DB extends EventEmitter
 @param {object} opts Additional options (optional)
 @returns {object} A DB helper object.
 ###
-module.exports = (config, opts) -> new DB(config || process.env.DATABASE_URL, opts)
+module.exports = (config, opts) ->
+  config ||= process.env.DATABASE_URL
+  if !config
+    throw new Error('config or process.env.DATABASE_URL is required')
+  new DB(config || process.env.DATABASE_URL, opts)
