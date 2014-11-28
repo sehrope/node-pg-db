@@ -33,7 +33,7 @@ compile-cov:
 test-cov: compile-cov
 	rm -rf cov
 	mkdir -p cov
-	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov $(TESTARGS) > cov/index.html
+	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov --require ./lib-cov/init.js $(TESTARGS) > cov/index.html
 	open cov/index.html
 
 .PHONY: clean default build package publish lint test compile-cov test-cov

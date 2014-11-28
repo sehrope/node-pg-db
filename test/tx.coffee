@@ -1,6 +1,7 @@
 async = require 'async'
 {assert, expect} = require 'chai'
-db = require(if process.env.COVERAGE then '../lib-cov' else '../lib')()
+libPath = if process.env.COVERAGE then '../lib-cov' else '../lib'
+db = require(libPath)()
 
 ###
 Returns the current transaction in from the database.
