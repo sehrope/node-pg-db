@@ -51,6 +51,13 @@ class DB extends EventEmitter
           # Stack when the transaction was first created:
           stack: txStack
 
+        invokeCb = (err, results) ->
+          if activeDomain
+            activeDomain.run () ->
+              cb(err, results)
+          else
+            cb(err, results)
+
         exitTxDomain = () =>
           # Remove transaction state from domain:
           txd[@txKey] = null
@@ -68,10 +75,10 @@ class DB extends EventEmitter
           exitTxDomain()
           # Propagate the error the parent domain
           if activeDomain
-            activeDomain.emit 'err', err
+            activeDomain.emit 'error', err
             rollbackTx(err)
           else
-            rollbackTx(err, cb)
+            rollbackTx(err, invokeCb)
 
         txd.run () =>
           async.series [
@@ -82,11 +89,11 @@ class DB extends EventEmitter
             exitTxDomain()
             if err
               # An error ocurred somewhere so rollback the transaction:
-              return rollbackTx(err, cb)
+              return rollbackTx(err, invokeCb)
             # Return the connection to the pool
             done()
             # Invoke the completion callback with the result of the task:
-            cb(null, results[1])
+            invokeCb(null, results[1])
 
     # Primary tx function for executing a single task:      
     @tx = execTx

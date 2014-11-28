@@ -23,6 +23,8 @@ Same as getTransactionId(...) but with a 100 ms delay (client side).
 ###
 fakeSlowGetTransactionId = (cb) -> setTimeout getTransactionId, 100, cb
 
+syncError = (cb) -> throw new Error('Fake uncaught error')
+asyncError = (cb) -> cb(new Error('Fake async error'))
 noop = (cb) -> process.nextTick cb, null
 
 describe 'db.tx', () ->
@@ -39,6 +41,25 @@ describe 'db.tx', () ->
     , (err) ->
       expect(err).to.be.not.ok()
       done()
+
+  it 'should revert to the prior active domain on completion', (done) ->
+    d = require('domain').create()
+    d.foo = 'foobar'
+    checkStillInDomain = () ->
+      expect(process.domain?.foo).to.be.equal('foobar')
+    d.run () ->
+      checkStillInDomain()
+      db.tx noop, (err) ->
+        checkStillInDomain()
+        done()
+
+  it 'should propagate uncaught errors to the prior active domain', (done) ->
+    d = require('domain').create()
+    d.on 'error', (err) ->
+      done()
+    d.run () ->
+      db.tx syncError, (err) ->
+        done(new Error('domain error was not propagated'))
 
   it 'should return different transaction ids for separate transactions', (done) ->
     async.parallel [
