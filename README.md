@@ -23,49 +23,10 @@
 # Transactions
 Transactions are implemented using [domains](http://nodejs.org/api/domain.html). This allows the same node-postgres `client` object to be used by separate parts of your application without having to manually pass it as an argument.
 
-For example, say you have a controller function that updates a model and inserts an audit trail record happen in the same transaction. Using node-postgres directly you'd need to something like this:
-
-    pg.connect(config, function(err, client, done){
-      if( err ) return next(err);
-      function beginTx(cb) {
-        client.query('BEGIN', cb);
-      }
-      function rollbackTx(cb) {
-        client.query('ROLLBACK', function(rollbackErr) {
-          // Destroy the connection:
-          done(err);
-          cb(err);
-        });
-      }
-      function commitTx(cb) {
-        client.query('COMMIT', cb);
-      }      
-      async.series([
-        // Start a transaction:
-        beginTx
-        // Do some work making sure to pass in client:
-        async.apply(updateMyModel, client, blah),
-        async.apply(createAuditRecord, client, blah),
-        // Try to COMMIT:
-        commitTx
-      ], function(err, results) {
-        // If an error occurs try to ROLLBACK:
-        if( err ) return rollbackTx(err);
-        // Return connection to the pool:
-        done()
-        cb(null);
-      });
-    });
-
-This can be cleaned up a bit by centralizing the BEGIN/COMMIT/ROLLBACK but you still need to pass in the `client` object to function that will be participating in the transaction.
-
-Compare that to what the code looks like with automatic transaction management:
-
     db.tx.series([
-      async.apply(Foo.update, 123),
-      async.apply(Audit.create, 123)
+      async.apply(Foo.update, foo),
+      async.apply(Audit.create, foo)
     ], cb);
-
 
 # API
 
