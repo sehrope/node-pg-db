@@ -4,6 +4,9 @@ clean:
 	rm -rf node_modules
 	rm -rf lib
 
+compile:
+	coffee --bare --output lib --compile src
+
 build:
 	npm install
 	coffee --bare --output lib --compile src
