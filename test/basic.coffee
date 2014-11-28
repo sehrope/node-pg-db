@@ -1,6 +1,7 @@
 async = require 'async'
 {assert, expect} = require 'chai'
-db = require(if process.env.COVERAGE then '../lib-cov' else '../lib')()
+libPath = if process.env.COVERAGE then '../lib-cov' else '../lib'
+db = require(libPath)()
 
 describe 'db.execute', () ->
   it 'should return an error if the SQL is invalid', (done) ->
@@ -79,3 +80,15 @@ describe 'db.update', () ->
       expect(err).to.be.null
       expect(rowCount).to.be.a('number')
       done()
+
+describe 'create a new DB with a null DATABASE_URL', () ->
+  it 'should should throw an Error', () ->
+    tmp = process.env.DATABASE_URL
+    process.env.DATABASE_URL = ''
+    try
+      require(libPath)()
+      threwError = false
+    catch e
+      threwError = true
+    process.env.DATABASE_URL = tmp
+    expect(threwError).is.equal(true)

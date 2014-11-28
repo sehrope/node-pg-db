@@ -285,4 +285,4 @@ module.exports = (config, opts) ->
   config ||= process.env.DATABASE_URL
   if !config
     throw new Error('config or process.env.DATABASE_URL is required')
-  new DB(config || process.env.DATABASE_URL, opts)
+  return new DB(config, opts)
