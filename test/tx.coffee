@@ -27,6 +27,12 @@ syncError = (cb) -> throw new Error('Fake uncaught error')
 asyncError = (cb) -> cb(new Error('Fake async error'))
 noop = (cb) -> process.nextTick cb, null
 
+createAndClearTestTable = (cb) ->
+  async.series [
+    (cb) -> db.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', cb
+    (cb) -> db.update 'DELETE FROM pg_db_test', cb
+  ], cb
+
 describe 'db.tx', () ->
   it 'should not have _tx defined on the domain after the transaction completes', (done) ->
     db.tx noop, (err) ->
@@ -180,3 +186,35 @@ describe 'db.tx.update', () ->
         expect(err).to.be.not.ok()
         cb(null)
     , done
+
+describe 'db.tx', () ->
+  it 'should COMMIT transaction that succeed', (done) ->
+    createAndClearTestTable (err) ->
+      expect(err).to.be.not.ok()
+      db.tx.series [
+        (cb) -> db.queryOne 'SELECT 1', cb
+        (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test1')", cb
+        (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test2')", cb
+        (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test3')", cb
+      ], (err) ->
+        expect(err).to.be.not.ok()
+        db.queryOne 'SELECT COUNT(*)::int AS count FROM pg_db_test', (err, row) ->
+          expect(err).to.be.not.ok()
+          expect(row.count).to.be.equal(3)
+          done()
+
+  it 'should ROLLBACK transaction that fail', (done) ->
+    createAndClearTestTable (err) ->
+      expect(err).to.be.not.ok()
+      db.tx.series [
+        (cb) -> db.queryOne 'SELECT 1', cb
+        (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test1')", cb
+        (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test2')", cb
+        (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test3')", cb
+        (cb) -> db.update 'SOME BAD SQL', cb
+      ], (err) ->
+        expect(err).to.be.ok()
+        db.queryOne 'SELECT COUNT(*)::int AS count FROM pg_db_test', (err, row) ->
+          expect(err).to.be.not.ok()
+          expect(row.count).to.be.equal(0)
+          done()
