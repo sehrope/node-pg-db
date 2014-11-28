@@ -11,7 +11,7 @@ class DB extends EventEmitter
   @param {string|object} config The config URL or object for the remote database.
   @param {object} opts Optional configuration properties.
   ###
-  constructor: (@config, @opts) ->
+  constructor: (@config, @opts = {}) ->
     # Unique pool key, used to namespace transactions:
     @poolKey = JSON.stringify(config)
     ###
@@ -64,8 +64,14 @@ class DB extends EventEmitter
           txd.exit()
 
         rollbackTx = (err, cb) =>
-          client.query 'ROLLBACK', [], (rollbackErr) ->
-            # TODO: Log if an error occurs
+          @emit 'rollback',
+            tx: tx
+            err: err
+          client.query 'ROLLBACK', [], (rollbackErr) =>
+            @emit 'rollbackComplete',
+              tx: tx
+              err: err
+              rollbackErr: rollbackErr
             # Return the connection to the pool and instruct it to disgard it
             done(err)
             # If defined, invoke the callback with the original error:
@@ -84,12 +90,16 @@ class DB extends EventEmitter
           async.series [
             client.query.bind client, 'BEGIN', []
             task
+            (cb) =>
+              @emit 'commit', {tx}
+              cb(null)
             client.query.bind client, 'COMMIT', []
           ], (err, results) =>
             exitTxDomain()
             if err
               # An error ocurred somewhere so rollback the transaction:
               return rollbackTx(err, invokeCb)
+            @emit 'commitComplete', {tx}
             # Return the connection to the pool
             done()
             # Invoke the completion callback with the result of the task:
@@ -155,14 +165,36 @@ class DB extends EventEmitter
     if typeof(sql) != 'string' then throw new Error('sql must be a stirng')
     if !Array.isArray(params) && typeof(params) != 'object' then throw new Error('params must be an array or object')
     if typeof(cb) != 'function' then throw new Error('cb must be a function')
+    # Save the stack of the caller:
+    startedAt = new Date()
+    stack = new Error().stack
 
     executeInternal = (client, sql, params, cb) =>
-      startedAt = new Date()
-      # TODO: Publish execute event
+      executeId = uid(32)
+      connectedAt = new Date()
+      @emit 'execute',
+        id: executeId
+        sql: sql
+        params: params
+        tx: @tx.active
+        stack: stack
+        startedAt: startedAt
+        connectedAt: connectedAt
       client.query sql, params, (err, result) =>
         completedAt = new Date()
         elapsed = completedAt.getTime() - startedAt.getTime()
-        # TODO: Publish executed event
+        @emit 'executeComplete',
+          id: executeId
+          startedAt: startedAt
+          connectedAt: connectedAt
+          completedAt: completedAt
+          elapsed: completedAt.getTime() - startedAt.getTime()
+          sql: sql
+          params: params
+          tx: @tx.active
+          err: err
+          result: result
+          stack: stack
         cb(err, result)
 
     if @tx.active
