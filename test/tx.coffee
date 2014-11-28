@@ -1,6 +1,6 @@
 async = require 'async'
 {assert, expect} = require 'chai'
-db = require('../lib/index')(process.env.DATABASE_URL)
+db = require(if process.env.COVERAGE then '../lib-cov' else '../lib')()
 
 ###
 Returns the current transaction in from the database.

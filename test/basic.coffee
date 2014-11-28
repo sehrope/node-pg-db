@@ -1,6 +1,6 @@
 async = require 'async'
 {assert, expect} = require 'chai'
-db = require('../lib/index')(process.env.DATABASE_URL)
+db = require(if process.env.COVERAGE then '../lib-cov' else '../lib')()
 
 describe 'db.execute', () ->
   it 'should return an error if the SQL is invalid', (done) ->

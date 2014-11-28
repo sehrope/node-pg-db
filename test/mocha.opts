@@ -1,4 +1,4 @@
 --require coffee-script
 --require chai
---reporter tap
+--require ./lib-cov/init.js
 --compilers coffee:coffee-script/register

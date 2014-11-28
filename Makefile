@@ -3,6 +3,8 @@ default: package
 clean:
 	rm -rf node_modules
 	rm -rf lib
+	rm -rf lib-cov
+	rm -rf cov
 
 compile:
 	coffee --bare --output lib --compile src
@@ -21,7 +23,17 @@ lint:
 	echo "TODO: Add lint"
 	exit 1
 
-test:
-	foreman run --env=test/env node_modules/.bin/mocha $(TESTARGS)
+test: compile
+	foreman run --env=test/env node_modules/.bin/mocha --reporter tap $(TESTARGS)
 
-.PHONY: clean default build package publish lint test
+compile-cov:
+	rm -rf lib-cov
+	node_modules/.bin/coffeeCoverage --initfile lib-cov/init.js --bare src lib-cov
+
+test-cov: compile-cov
+	rm -rf cov
+	mkdir -p cov
+	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov $(TESTARGS) > cov/index.html
+	open cov/index.html
+
+.PHONY: clean default build package publish lint test compile-cov test-cov
