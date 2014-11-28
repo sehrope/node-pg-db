@@ -139,12 +139,12 @@ describe 'db.tx.auto', () ->
       done()
 
 describe 'db.tx.queryOne', () ->
-  it 'should return an error when no transaction exists ', (done) ->
+  it 'should return an error when no transaction exists', (done) ->
     db.tx.queryOne 'SELECT 1 AS x', (err, row) ->
       expect(err).to.be.ok()
       done()
 
-  it 'should not return an error when a transaction exists ', (done) ->
+  it 'should not return an error when a transaction exists', (done) ->
     db.tx (cb) ->
       db.tx.queryOne 'SELECT 1 AS x', (err, row) ->
         expect(err).to.be.not.ok()  
@@ -154,12 +154,12 @@ describe 'db.tx.queryOne', () ->
     , done
 
 describe 'db.tx.query', () ->
-  it 'should return an error when no transaction exists ', (done) ->
+  it 'should return an error when no transaction exists', (done) ->
     db.tx.query 'SELECT 1 AS x', (err, rows) ->
       expect(err).to.be.ok()
       done()
 
-  it 'should not return an error when a transaction exists ', (done) ->
+  it 'should not return an error when a transaction exists', (done) ->
     db.tx (cb) ->
       db.tx.query 'SELECT 1 AS x', (err, rows) ->
         expect(err).to.be.not.ok()  
@@ -169,12 +169,12 @@ describe 'db.tx.query', () ->
     , done
 
 describe 'db.tx.update', () ->
-  it 'should return an error when no transaction exists ', (done) ->
+  it 'should return an error when no transaction exists', (done) ->
     db.tx.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
       expect(err).to.be.ok()
       done()
 
-  it 'should not return an error when a transaction exists ', (done) ->
+  it 'should not return an error when a transaction exists', (done) ->
     db.tx (cb) ->
       db.tx.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
         expect(err).to.be.not.ok()
