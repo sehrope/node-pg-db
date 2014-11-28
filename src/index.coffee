@@ -275,6 +275,8 @@ class DB extends EventEmitter
     if pool
       pool.drain () ->
         pool.destroyAllNow cb || ->
+    else
+      if cb then setImmediate cb
 
 ###
 @param {object|string} config The connection confirg, defaults to process.env.DATABASE_URL
