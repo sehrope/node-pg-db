@@ -94,6 +94,24 @@ describe 'db.tx.parallel', () ->
         expect(result).to.be.equal(txId)
       done()
 
+describe 'db.tx.auto', () ->
+  it 'should return the same transaction id for multiple statements', (done) ->
+    db.tx.auto
+      foo: getTransactionId
+      bar: slowGetTransactionId
+      baz: ['foo', 'bar', fakeSlowGetTransactionId]
+      bam: ['baz', fakeSlowGetTransactionId]
+    , (err, results) ->
+      expect(err).to.be.null()
+      expect(results).to.be.a('object')
+      txId = results.foo
+      expect(results).to.deep.equals
+        foo: txId
+        bar: txId
+        baz: txId
+        bam: txId
+      done()
+
 describe 'db.tx.queryOne', () ->
   it 'should return an error when no transaction exists ', (done) ->
     db.tx.queryOne 'SELECT 1 AS x', (err, row) ->

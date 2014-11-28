@@ -92,7 +92,7 @@ class DB extends EventEmitter
     @tx = execTx
 
     # Add async helper functions:
-    for name in ['series', 'parallel', 'parallelLimit', 'auto']
+    for name in ['series', 'parallel', 'auto']
       do (name) =>
         asyncFunc = async[name]        
         @tx[name] = (tasks, cb) =>
@@ -237,4 +237,9 @@ class DB extends EventEmitter
       pool.drain () ->
         pool.destroyAllNow cb || ->
 
+###
+@param {object|string} config The connection confirg, defaults to process.env.DATABASE_URL
+@param {object} opts Additional options (optional)
+@returns {object} A DB helper object.
+###
 module.exports = (config, opts) -> new DB(config || process.env.DATABASE_URL, opts)
