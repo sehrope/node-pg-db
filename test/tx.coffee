@@ -53,13 +53,18 @@ describe 'db.tx', () ->
         checkStillInDomain()
         done()
 
-  it 'should propagate uncaught errors to the prior active domain', (done) ->
+  it 'should propagate uncaught errors if there is an active domain', (done) ->
     d = require('domain').create()
     d.on 'error', (err) ->
       done()
     d.run () ->
       db.tx syncError, (err) ->
         done(new Error('domain error was not propagated'))
+
+  it 'should handle uncaught errors when there is no active domain', (done) ->
+    db.tx syncError, (err) ->
+      expect(err).to.be.not.null
+      done()
 
   it 'should return different transaction ids for separate transactions', (done) ->
     async.parallel [
@@ -160,5 +165,18 @@ describe 'db.tx.query', () ->
         expect(err).to.be.not.ok()  
         expect(rows).to.be.ok()
         expect(rows.length).to.be.equal(1)
+        cb(null)
+    , done
+
+describe 'db.tx.update', () ->
+  it 'should return an error when no transaction exists ', (done) ->
+    db.tx.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
+      expect(err).to.be.ok()
+      done()
+
+  it 'should not return an error when a transaction exists ', (done) ->
+    db.tx (cb) ->
+      db.tx.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
+        expect(err).to.be.not.ok()
         cb(null)
     , done
