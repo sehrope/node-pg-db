@@ -17,6 +17,16 @@ describe 'db.execute', () ->
       expect(result.rows).to.be.a('array')
       done()
 
+  it 'should return an error if the first parameter is null (i.e. not a string)', (done) ->
+    db.execute null, (err, result) ->
+      expect(err).to.be.ok()
+      done()
+
+  it 'should return an error if the first parameter is an object (i.e. not a string)', (done) ->
+    db.execute {foo:'bar'}, (err, result) ->
+      expect(err).to.be.ok()
+      done()
+
 describe 'db.queryOne', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.queryOne 'BAD SQL GOES HERE', (err, row) ->
