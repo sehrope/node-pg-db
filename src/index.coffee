@@ -72,7 +72,7 @@ class DB extends EventEmitter
               tx: tx
               err: err
               rollbackErr: rollbackErr
-            # Return the connection to the pool and instruct it to disgard it
+            # Return the connection to the pool and instruct it to discard it
             done(err)
             # If defined, invoke the callback with the original error:
             cb?(err)
@@ -105,13 +105,13 @@ class DB extends EventEmitter
             # Invoke the completion callback with the result of the task:
             invokeCb(null, results[1])
 
-    # Primary tx function for executing a single task:      
+    # Primary tx function for executing a single task:
     @tx = execTx
 
     # Add async helper functions:
     for name in ['series', 'parallel', 'auto']
       do (name) =>
-        asyncFunc = async[name]        
+        asyncFunc = async[name]
         @tx[name] = (tasks, cb) =>
           task = (cb) -> asyncFunc tasks, cb
           execTx task, cb
@@ -205,7 +205,7 @@ class DB extends EventEmitter
       @connect (err, client, done) =>
         if err then return cb(err)
         executeInternal client, sql, params, (err, result) ->
-          # Return the connection to the pool, if there's an error it'll be disgarded:
+          # Return the connection to the pool, if there's an error it'll be discarded:
           done(err)
           cb(err, result)
 

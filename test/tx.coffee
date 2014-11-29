@@ -154,7 +154,7 @@ describe 'db.tx.queryOne', () ->
   it 'should not return an error when a transaction exists', (done) ->
     db.tx (cb) ->
       db.tx.queryOne 'SELECT 1 AS x', (err, row) ->
-        expect(err).to.be.not.ok()  
+        expect(err).to.be.not.ok()
         expect(row).to.be.ok()
         expect(row.x).to.be.equal(1)
         cb(null)
@@ -169,7 +169,7 @@ describe 'db.tx.query', () ->
   it 'should not return an error when a transaction exists', (done) ->
     db.tx (cb) ->
       db.tx.query 'SELECT 1 AS x', (err, rows) ->
-        expect(err).to.be.not.ok()  
+        expect(err).to.be.not.ok()
         expect(rows).to.be.ok()
         expect(rows.length).to.be.equal(1)
         cb(null)
