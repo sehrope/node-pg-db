@@ -32,6 +32,18 @@ describe 'db.execute', () ->
       expect(err).to.be.ok()
       done()
 
+  it 'should return an error if params arg is not an array or object', (done) ->
+    db.execute 'SELECT $1', 12345, (err, result) ->
+      expect(err).to.be.ok()
+      done()
+
+  it 'should return an error if cb is not a function', (done) ->
+    try
+      db.execute 'SELECT $1', [12345], 'some string'
+      done(new Error())
+    catch e
+      done()
+
 describe 'db.queryOne', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.queryOne 'BAD SQL GOES HERE', (err, row) ->

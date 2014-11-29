@@ -162,9 +162,9 @@ class DB extends EventEmitter
       cb = params
       params = []
     # Sanity check for args:
+    if typeof(cb) != 'function' then throw new Error('cb must be a function')
     if typeof(sql) != 'string' then return setImmediate cb, new Error('sql must be a string')
     if !Array.isArray(params) && typeof(params) != 'object' then return setImmediate cb, new Error('params must be an array or object')
-    if typeof(cb) != 'function' then return setImmediate cb, new Error('cb must be a function')
     # Save the stack of the caller:
     startedAt = new Date()
     stack = new Error().stack
