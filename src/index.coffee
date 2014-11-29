@@ -162,7 +162,7 @@ class DB extends EventEmitter
       cb = params
       params = []
     # Sanity check for args:
-    if typeof(sql) != 'string' then throw new Error('sql must be a stirng')
+    if typeof(sql) != 'string' then throw new Error('sql must be a string')
     if !Array.isArray(params) && typeof(params) != 'object' then throw new Error('params must be an array or object')
     if typeof(cb) != 'function' then throw new Error('cb must be a function')
     # Save the stack of the caller:
