@@ -20,8 +20,7 @@ publish: package
 	exit 1
 
 lint:
-	echo "TODO: Add lint"
-	exit 1
+	node_modules/.bin/coffeelint src test
 
 test: compile
 	foreman run --env=test/env node_modules/.bin/mocha --reporter tap $(TESTARGS)
