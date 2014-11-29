@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Wrapper for pg that adds simpler API, transactions, and more.",
   "license": "MIT",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/sehrope/node-pg-db.git"
