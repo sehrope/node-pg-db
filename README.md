@@ -1,5 +1,3 @@
-# TODO: Fill this in ...
-
 # Install
 
     $ npm install pg-db --save
@@ -81,7 +79,7 @@ Convenience wrapper for executing multiple tasks that depended on each other wit
 Internally this executes the tasks by calling [async.auto](https://github.com/caolan/async#auto).
 
 ### tx.waterfall(tasks, function cb(err, results))
-Convenience wrapper for executing tasks in series, passing each result to the next task, within a transaction.
+Convenience wrapper for executing tasks in a waterfall, passing each result to the next task, within a transaction.
 
 Internally this executes the tasks by calling [async.waterfall](https://github.com/caolan/async#waterfall).
 
