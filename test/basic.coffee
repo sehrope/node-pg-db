@@ -27,6 +27,11 @@ describe 'db.execute', () ->
       expect(err).to.be.ok()
       done()
 
+  it 'should return an error if the first parameter is a number (i.e. not a string)', (done) ->
+    db.execute 12345, (err, result) ->
+      expect(err).to.be.ok()
+      done()
+
 describe 'db.queryOne', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.queryOne 'BAD SQL GOES HERE', (err, row) ->
