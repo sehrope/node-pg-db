@@ -36,4 +36,14 @@ test-cov: compile-cov
 	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov --require ./lib-cov/init.js $(TESTARGS) > cov/index.html
 	open cov/index.html
 
-.PHONY: clean default build package publish lint test compile-cov test-cov
+compile-cov-js: compile
+	rm -rf lib-cov
+	node_modules/.bin/jscoverage lib lib-cov
+
+test-cov-js: compile-cov-js
+	rm -rf cov
+	mkdir -p cov
+	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov  $(TESTARGS) > cov/index.html
+	open cov/index.html
+
+.PHONY: clean default build package publish lint test compile-cov test-cov compile-cov-js test-cov-js
