@@ -117,6 +117,22 @@ parse = (sql) ->
   return ret
 
 module.exports =
+  ###
+  The object returned by this function has the following properties:
+    sql {string} The parsed SQL with named parameters replaced with $1, $2, ...
+    originalSql {string} The original SQL, unchanged.
+    params {array} An array of the parameters in the SQL.
+    numParams {number} The total number of parameters.
+    numDistinctParams {number} The number of uniquely named parameters.
+
+  Each param object has the following properties:
+    name {string} The name of the parameter
+    index {number} The first index the parameter is used.
+    indexes {array[number]} All the indexes for which the parameter is used.
+
+  @param {string} sql The SQL to parse for named parameters.
+  @return {object} The parsed SQL with named parameters replaced with $1, $2, ... references.
+  ###
   parse: parse
   # For testing:
   isParamSeparator: isParamSeparator
