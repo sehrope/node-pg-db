@@ -2,9 +2,42 @@ pg = require 'pg.js'
 domain = require 'domain'
 async = require 'async'
 uid = require('rand-token').uid
-{EventEmitter} = require 'events'
 
-class DB extends EventEmitter
+eventTypes = [
+  'begin'
+  'beginComplete'
+  'execute'
+  'executeComplete'
+  'commit'
+  'commitComplete'
+  'rollback'
+  'rollbackComplete'
+]
+eventTypesMap = {}
+for event in eventTypes
+  eventTypesMap[event] = true
+
+###
+Wraps a function to ignore any returned or thrown errors.
+If cb has no args (i.e. sync) it's turned into an async function instead.
+###
+asyncIgnorify = (cb) ->
+  if cb.length == 0
+    return (callback) ->
+      try
+        cb()
+      catch ignore
+      callback()
+  return (callback) ->
+    try
+      cb () ->
+        callback()
+    catch ignore
+      callback()
+
+class DB
+  _listeners: {}
+
   ###
   Creates a new instance.
 
@@ -12,12 +45,7 @@ class DB extends EventEmitter
   @param {object} opts Optional configuration properties.
   ###
   constructor: (@config, @opts = {}) ->
-    # Unique pool key, used to namespace transactions:
     @poolKey = JSON.stringify(config)
-    ###
-    Property nae to store the transaction state in the active domain.
-    Namespaced with the pool key to allow for multiple transaction with different data sources.
-    ###
     @txKey = '_tx'
 
     ###
@@ -50,13 +78,23 @@ class DB extends EventEmitter
           client: client
           # Stack when the transaction was first created:
           stack: txStack
+          # Event listeners
+          onSuccess: []
+          onFailure: []
+
+        # If any transaction completion callbacks have been registered then execute them
+        doTxCompletionCallbacks = (err, cb) ->
+          callbacks = if err then tx.onFailure else tx.onSuccess
+          if callbacks.length == 0 then return cb(null)
+          async.series callbacks, cb
 
         invokeCb = (err, results) ->
-          if activeDomain
-            activeDomain.run () ->
+          doTxCompletionCallbacks err, () ->
+            if activeDomain
+              activeDomain.run () ->
+                cb(err, results)
+            else
               cb(err, results)
-          else
-            cb(err, results)
 
         exitTxDomain = () =>
           # Remove transaction state from domain:
@@ -88,7 +126,13 @@ class DB extends EventEmitter
 
         txd.run () =>
           async.series [
+            (cb) =>
+              @emit 'begin', {tx}
+              cb(null)
             client.query.bind client, 'BEGIN', []
+            (cb) =>
+              @emit 'beginComplete', {tx}
+              cb(null)
             task
             (cb) =>
               @emit 'commit', {tx}
@@ -99,14 +143,26 @@ class DB extends EventEmitter
             if err
               # An error ocurred somewhere so rollback the transaction:
               return rollbackTx(err, invokeCb)
-            @emit 'commitComplete', {tx}
+            if activeDomain
+              activeDomain.run () => @emit 'commitComplete', {tx}
+            else
+              @emit 'commitComplete', {tx}
             # Return the connection to the pool
             done()
             # Invoke the completion callback with the result of the task:
-            invokeCb(null, results[1])
+            invokeCb(null, results[3])
 
     # Primary tx function for executing a single task:
     @tx = execTx
+
+    @tx.onSuccess = (cb) =>
+      if !@tx.active then throw new Error('Transaction required')
+      if typeof(cb) != 'function' then throw new Error('cb must be a function')
+      @tx.active.onSuccess.push asyncIgnorify(cb)
+    @tx.onFailure = (cb) =>
+      if !@tx.active then throw new Error('Transaction required')
+      if typeof(cb) != 'function' then throw new Error('cb must be a function')
+      @tx.active.onFailure.push asyncIgnorify(cb)
 
     # Add async helper functions:
     for name in ['series', 'parallel', 'auto']
@@ -136,6 +192,22 @@ class DB extends EventEmitter
     ###
     Object.defineProperty @tx, 'active',
       get: () => process.domain?[@txKey] || null
+
+  ###
+  Add an event listener.
+  ###
+  on: (event, listener) =>
+    if !eventTypesMap[event] then throw new Error('invalid event type: ' + event)
+    if typeof(listener) != 'function' then throw new Error('listener must be a function')
+    @_listeners[event] ||= []
+    @_listeners[event].push(listener)
+
+  emit: (event, data...) =>
+    if !eventTypesMap[event] then throw new Error('invalid event type: ' + event)
+    listeners = @_listeners[event]
+    if !listeners then return
+    for listener in listeners
+      listener(data...)
 
   ###
   Convenience function to get a connection from the pool.
