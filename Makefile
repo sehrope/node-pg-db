@@ -7,11 +7,11 @@ clean:
 	rm -rf cov
 
 compile:
-	coffee --bare --output lib --compile src
+	node_modules/.bin/coffee --bare --output lib --compile src
 
 build:
 	npm install
-	coffee --bare --output lib --compile src
+	node_modules/.bin/coffee --bare --output lib --compile src
 
 package: clean build
 
