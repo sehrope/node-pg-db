@@ -58,7 +58,7 @@ Execute SQL with the optional parameters and invoke the callback with the raw re
 
 This function is used internally by `query`, `queryOne`, and `update`. It's useful when you'd like to use both the `rowCount` and `rows`. Otherwise it's probably more convenient to use one of the other functions.
 
-## Transaction API
+## Transaction API - Control Flow
 
 ### tx(function task(cb), function cb(err, result))
 Executes a task in a transaction and invokes the callback with the result of the task.
@@ -83,6 +83,9 @@ Convenience wrapper for executing tasks in a waterfall, passing each result to t
 
 Internally this executes the tasks by calling [async.waterfall](https://github.com/caolan/async#waterfall).
 
+## Transaction API - Query and DML
+Each of these functions checks whether a transaction is currently in progress and then invokes the equivalent non-tx function of the same name.
+
 ### tx.query(sql, [params], function cb(err, rows))
 Ensure we're running within a transaction and execute the command.
 
@@ -102,3 +105,18 @@ If no transaction is in progress then the callback is invoked with an error. Oth
 Ensure we're running within a transaction and execute the command.
 
 If no transaction is in progress then the callback is invoked with an error. Otherwise this behaves exactly like the non-tx version.
+
+## Transaction API - Success or Failure Hooks
+The transaction API allows for registering callbacks to execute on completion of the current transaction. If no transaction is in progress then an error will be thrown.
+
+If a callback has an arity of 0, i.e. `function() {...}`, then it is assumed to be a synchronous function.
+Otherwise it is assumed to accept a single paramater for the callback function that should be invoked, i.e. `function(cb) {...}`.
+
+Any errors thrown or asynchronously returned back from callbacks are ignored.
+Multiple callbacks are executed in the order they are registered.
+
+### tx.onSuccess(function([cb]) callback)
+Register a callback function to execute if the transaction is successful (i.e. after successful COMMIT)).
+
+### tx.onFailure(function([cb]) callback)
+Register a callback function to execute if the transaction is unsuccessful (e.g. a ROLLBACK is issued).
