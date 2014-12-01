@@ -7,7 +7,7 @@ expectError = (cb) ->
     cb()
   catch e
     return
-  throw 'Expected an error to be thrown'  
+  throw new Error('Expected an error to be thrown')
 
 describe 'named parameter parser', () ->
   it 'should parse :foo style params', () ->
