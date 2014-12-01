@@ -2,6 +2,7 @@ pg = require 'pg.js'
 domain = require 'domain'
 async = require 'async'
 uid = require('rand-token').uid
+np = require './named-params'
 
 eventTypes = [
   'begin'
@@ -16,6 +17,15 @@ eventTypes = [
 eventTypesMap = {}
 for event in eventTypes
   eventTypesMap[event] = true
+
+parsedSqlCache = {}
+parse = (sql) ->
+  parsedSql = parsedSqlCache[sql]
+  if !parsedSql
+    parsedSql = np.parse(sql)
+    parsedSqlCache[sql] = parsedSql
+  return parsedSql
+
 
 ###
 Wraps a function to ignore any returned or thrown errors.
@@ -240,6 +250,14 @@ class DB
     # Save the stack of the caller:
     startedAt = new Date()
     stack = new Error().stack
+
+    if typeof(params) == 'object'
+      try
+        parsedSql = parse(sql)
+        params = np.convertParamValues(parsedSql, params)
+        sql = parsedSql.sql
+      catch parseError
+        return setImmediate cb, parseError
 
     executeInternal = (client, sql, params, cb) =>
       executeId = uid(32)

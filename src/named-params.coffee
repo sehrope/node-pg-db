@@ -116,6 +116,15 @@ parse = (sql) ->
 
   return ret
 
+convertParamValues = (parsedSql, values) ->
+  ret = []
+  for param in parsedSql.params
+    if param.name of values
+      ret.push values[param.name]
+    else
+      throw new Error('No value found for parameter: ' + param.name)
+  return ret
+
 module.exports =
   ###
   The object returned by this function has the following properties:
@@ -134,6 +143,7 @@ module.exports =
   @return {object} The parsed SQL with named parameters replaced with $1, $2, ... references.
   ###
   parse: parse
+  convertParamValues: convertParamValues
   # For testing:
   isParamSeparator: isParamSeparator
   skipCommentsAndQuotes: skipCommentsAndQuotes
