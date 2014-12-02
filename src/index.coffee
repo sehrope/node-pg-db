@@ -175,7 +175,7 @@ class DB
       @tx.active.onFailure.push asyncIgnorify(cb)
 
     # Add async helper functions:
-    for name in ['series', 'parallel', 'auto']
+    for name in ['series', 'parallel', 'auto', 'waterfall']
       do (name) =>
         asyncFunc = async[name]
         @tx[name] = (tasks, cb) =>
