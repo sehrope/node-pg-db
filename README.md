@@ -17,6 +17,8 @@
 * Automatically return connections to the pool - *no need to call `client.done()`*
 * Named parameters - *`... WHERE foo = :foo` instead of `... WHERE foo = $1`*
 * Transactions - *automatic and transparent!*
+* Event hooks - *register callbacks when queries get executed - great for logging!*
+* Transaction event hooks - *register callbacks when a transaction completes - great for cache invalidation!*
 
 # Transactions
 Transactions are implemented using [domains](http://nodejs.org/api/domain.html). This allows the same node-postgres `client` object to be used by separate parts of your application without having to manually pass it as an argument.
@@ -60,25 +62,25 @@ This function is used internally by `query`, `queryOne`, and `update`. It's usef
 
 ## Transaction API - Control Flow
 
-### tx(function task(cb), function cb(err, result))
+### db.tx(function task(cb), function cb(err, result))
 Executes a task in a transaction and invokes the callback with the result of the task.
 
-### tx.series(tasks, function cb(err, results))
+### db.tx.series(tasks, function cb(err, results))
 Convenience wrapper for executing a series of tasks within a transaction.
 
 Internally this executes the tasks by calling [async.series](https://github.com/caolan/async#seriestasks-callback).
 
-### tx.parallel(tasks, function cb(err, results))
+### db.tx.parallel(tasks, function cb(err, results))
 Convenience wrapper for executing tasks in parallel within a transaction.
 
 Internally this executes the tasks by calling [async.parallel](https://github.com/caolan/async#parallel).
 
-### tx.auto(tasks, function cb(err, results))
+### db.tx.auto(tasks, function cb(err, results))
 Convenience wrapper for executing multiple tasks that depended on each other within a transaction.
 
 Internally this executes the tasks by calling [async.auto](https://github.com/caolan/async#auto).
 
-### tx.waterfall(tasks, function cb(err, results))
+### db.tx.waterfall(tasks, function cb(err, results))
 Convenience wrapper for executing tasks in a waterfall, passing each result to the next task, within a transaction.
 
 Internally this executes the tasks by calling [async.waterfall](https://github.com/caolan/async#waterfall).
@@ -86,22 +88,22 @@ Internally this executes the tasks by calling [async.waterfall](https://github.c
 ## Transaction API - Query and DML
 Each of these functions checks whether a transaction is currently in progress and then invokes the equivalent non-tx function of the same name.
 
-### tx.query(sql, [params], function cb(err, rows))
+### db.tx.query(sql, [params], function cb(err, rows))
 Ensure we're running within a transaction and execute the command.
 
 If no transaction is in progress then the callback is invoked with an error. Otherwise this behaves exactly like the non-tx version.
 
-### tx.queryOne(sql, [params], function cb(err, row))
+### db.tx.queryOne(sql, [params], function cb(err, row))
 Ensure we're running within a transaction and execute the command.
 
 If no transaction is in progress then the callback is invoked with an error. Otherwise this behaves exactly like the non-tx version.
 
-### tx.update(sql, [params], function cb(err, rowCount))
+### db.tx.update(sql, [params], function cb(err, rowCount))
 Ensure we're running within a transaction and execute the command.
 
 If no transaction is in progress then the callback is invoked with an error. Otherwise this behaves exactly like the non-tx version.
 
-### tx.execute(sql, [params], function cb(err, result))
+### db.tx.execute(sql, [params], function cb(err, result))
 Ensure we're running within a transaction and execute the command.
 
 If no transaction is in progress then the callback is invoked with an error. Otherwise this behaves exactly like the non-tx version.
@@ -115,8 +117,8 @@ Otherwise it is assumed to accept a single paramater for the callback function t
 Any errors thrown or asynchronously returned back from callbacks are ignored.
 Multiple callbacks are executed in the order they are registered.
 
-### tx.onSuccess(function([cb]) callback)
+### db.tx.onSuccess(function([cb]) callback)
 Register a callback function to execute if the transaction is successful (i.e. after successful COMMIT)).
 
-### tx.onFailure(function([cb]) callback)
+### db.tx.onFailure(function([cb]) callback)
 Register a callback function to execute if the transaction is unsuccessful (e.g. a ROLLBACK is issued).
