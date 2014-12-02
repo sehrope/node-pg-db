@@ -15,9 +15,8 @@ build:
 
 package: clean build
 
-publish: package
-	echo "TODO: Add publish to npm"
-	exit 1
+publish: test lint package
+	npm publish
 
 lint:
 	node_modules/.bin/coffeelint src test
