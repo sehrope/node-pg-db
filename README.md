@@ -14,7 +14,8 @@
 
 # Features
 * Convenient wrapper functions - *callbacks for single row, multiple rows, or update row counts*
-* Automatically return connections to the pool - *no need to call `client.done()`*
+* Automatically return connections to the pool - *no need to call `done()`*
+* SQL errors automatically destory the connection - *no need to call `done(err)`*
 * Named parameters - *`... WHERE foo = :foo` instead of `... WHERE foo = $1`*
 * Transactions - *automatic and transparent!*
 * Event hooks - *register callbacks when queries get executed - great for logging!*
@@ -122,3 +123,19 @@ Register a callback function to execute if the transaction is successful (i.e. a
 
 ### db.tx.onFailure(function([cb]) callback)
 Register a callback function to execute if the transaction is unsuccessful (e.g. a ROLLBACK is issued).
+
+## Events API
+### db.on(event, function(data...))
+Register a callback to execute when a given event occurs.
+
+The follow event types are supported:
+
+* execute - triggered whenever a query is executed.
+* executeComplete - triggered after a query is executed.
+* begin - triggered before a transaction is started.
+* beginComplete - triggered after a transaction is started.
+* commit - triggered when a transaction is about to be committed.
+* commitComplete - triggered after a transaction is committed.
+* rollback - triggered when a transaction is about to be rolled back.
+* rollbackComplete - triggered after a transaction is rolled back.
+
