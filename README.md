@@ -1,3 +1,20 @@
+# Overview
+Helper module atop [node-postgres](https://github.com/brianc/node-postgres) that adds transaction management, simpler query API, event hooks, and more.
+
+* [Install](#install)
+* [Usage](#usage)
+* [Features](#features)
+* [Transaction](#transactions)
+* [Named Parameter Support](#named-parameters)
+* [API](#api)
+    * [Query API](#query-api)
+    * [Transaction API - Control Flow](#transaction-api---control-flow)
+    * [Transaction API - Query and DML](#transaction-api---query-and-dml)
+    * [Transaction API - Success/Failure Hooks](#transaction-api---success-or-failure-hooks)
+* [Events API](#events-api)
+* [Building and Testing](#building-and-testing)
+* [License](#license)
+
 # Install
 
     $ npm install pg-db --save
