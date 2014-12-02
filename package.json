@@ -3,7 +3,6 @@
   "version": "0.2.0",
   "description": "Transactions, named parameters, and more for node-postgres",
   "license": "MIT",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/sehrope/node-pg-db.git"
