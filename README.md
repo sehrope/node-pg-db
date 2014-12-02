@@ -204,3 +204,5 @@ The follow event types are supported:
 * rollback - triggered when a transaction is about to be rolled back.
 * rollbackComplete - triggered after a transaction is rolled back.
 
+# License
+See the [LICENSE](LICENSE) file for details.
