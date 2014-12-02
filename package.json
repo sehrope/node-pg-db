@@ -1,7 +1,7 @@
 {
   "name": "pg-db",
   "version": "0.2.0",
-  "description": "Wrapper for pg that adds simpler API, transactions, and more.",
+  "description": "Transactions, named parameters, and more for node-postgres",
   "license": "MIT",
   "private": true,
   "repository": {
