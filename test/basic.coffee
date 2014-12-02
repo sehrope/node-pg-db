@@ -71,8 +71,8 @@ describe 'db.queryOne', () ->
 describe 'db.query', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.query 'BAD SQL GOES HERE', (err, row) ->
-       expect(err).to.be.an.instanceOf(Error)
-       done()
+      expect(err).to.be.an.instanceOf(Error)
+      done()
 
   it 'should return an array of rows for multi row queries', (done) ->
     db.query 'SELECT x FROM generate_series(1,10) x', (err, rows) ->
