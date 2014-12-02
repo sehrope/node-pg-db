@@ -251,6 +251,7 @@ class DB
     startedAt = new Date()
     stack = new Error().stack
 
+    originalSql = sql
     if params and !Array.isArray(params)
       try
         parsedSql = parse(sql)
@@ -264,7 +265,8 @@ class DB
       connectedAt = new Date()
       @emit 'execute',
         id: executeId
-        sql: sql
+        sql: originalSql
+        parsedSql: sql
         params: params
         tx: @tx.active
         stack: stack
@@ -279,7 +281,8 @@ class DB
           connectedAt: connectedAt
           completedAt: completedAt
           elapsed: completedAt.getTime() - startedAt.getTime()
-          sql: sql
+          sql: originalSql
+          parsedSql: sql
           params: params
           tx: @tx.active
           err: err
