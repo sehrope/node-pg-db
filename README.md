@@ -204,5 +204,16 @@ The follow event types are supported:
 * rollback - triggered when a transaction is about to be rolled back.
 * rollbackComplete - triggered after a transaction is rolled back.
 
+# Building and Testing
+To buld the module run:
+
+    $ make
+
+To run the tests first create a `test/env` file. You can use `test/env.example` as a template. Edit the `DATABASE_URL` property to point to a Postgres database.
+
+Then, to run the tests run:
+
+    $ make test
+
 # License
 See the [LICENSE](LICENSE) file for details.
