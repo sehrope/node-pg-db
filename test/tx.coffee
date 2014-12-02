@@ -148,7 +148,7 @@ describe 'db.tx.auto', () ->
 describe 'db.tx.queryOne', () ->
   it 'should return an error when no transaction exists', (done) ->
     db.tx.queryOne 'SELECT 1 AS x', (err, row) ->
-      expect(err).to.be.ok()
+      expect(err).to.be.an.instanceOf(Error)
       done()
 
   it 'should not return an error when a transaction exists', (done) ->
@@ -163,7 +163,7 @@ describe 'db.tx.queryOne', () ->
 describe 'db.tx.query', () ->
   it 'should return an error when no transaction exists', (done) ->
     db.tx.query 'SELECT 1 AS x', (err, rows) ->
-      expect(err).to.be.ok()
+      expect(err).to.be.an.instanceOf(Error)
       done()
 
   it 'should not return an error when a transaction exists', (done) ->
@@ -178,7 +178,7 @@ describe 'db.tx.query', () ->
 describe 'db.tx.update', () ->
   it 'should return an error when no transaction exists', (done) ->
     db.tx.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
-      expect(err).to.be.ok()
+      expect(err).to.be.an.instanceOf(Error)
       done()
 
   it 'should not return an error when a transaction exists', (done) ->
@@ -214,7 +214,7 @@ describe 'db.tx', () ->
         (cb) -> db.update "INSERT INTO pg_db_test (x) VALUES ('test3')", cb
         (cb) -> db.update 'SOME BAD SQL', cb
       ], (err) ->
-        expect(err).to.be.ok()
+        expect(err).to.be.an.instanceOf(Error)
         db.queryOne 'SELECT COUNT(*)::int AS count FROM pg_db_test', (err, row) ->
           expect(err).to.be.not.ok()
           expect(row.count).to.be.equal(0)

@@ -6,7 +6,7 @@ db = require(libPath)()
 describe 'db.execute', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.execute 'BAD SQL GOES HERE', (err, result) ->
-      expect(err).to.be.not.null()
+      expect(err).to.be.an.instanceOf(Error)
       done()
 
   it 'should return the row for single row queries', (done) ->
@@ -47,7 +47,7 @@ describe 'db.execute', () ->
 describe 'db.queryOne', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.queryOne 'BAD SQL GOES HERE', (err, row) ->
-      expect(err).to.be.not.null()
+      expect(err).to.be.an.instanceOf(Error)
       done()
 
   it 'should return the row for single row queries', (done) ->
@@ -71,8 +71,8 @@ describe 'db.queryOne', () ->
 describe 'db.query', () ->
   it 'should return an error if the SQL is invalid', (done) ->
     db.query 'BAD SQL GOES HERE', (err, row) ->
-      expect(err).to.be.not.null()
-      done()
+       expect(err).to.be.an.instanceOf(Error)
+       done()
 
   it 'should return an array of rows for multi row queries', (done) ->
     db.query 'SELECT x FROM generate_series(1,10) x', (err, rows) ->
