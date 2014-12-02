@@ -24,10 +24,75 @@
 # Transactions
 Transactions are implemented using [domains](http://nodejs.org/api/domain.html). This allows the same node-postgres `client` object to be used by separate parts of your application without having to manually pass it as an argument.
 
+Any other modules that use `pg-db` for query execution will automatically be part of the ongoing transaction. This allows you to easily compose multiple database interactions together without needing to pass a transactional context object to every single function.
+
+    // Foo.update(foo, cb) - Updates a Foo model object
+    // Audit.create(message, cb) - Creates an audit record
+
     db.tx.series([
       async.apply(Foo.update, foo),
-      async.apply(Audit.create, foo)
+      async.apply(Audit.create, 'Updating foo id=' + foo.id)
     ], cb);
+
+# Named Parameters
+Named parameter support allows you to use descriptive names for parameters in SQL queries.
+This leads to much cleaner SQL that's easier to both read and write.
+
+Example:
+
+    // SQL with numbered parameters:
+    db.queryOne('SELECT * FROM some_table WHERE foo = $1'
+              , [123]
+              , function(err, row) {...})
+    
+    // SQL with named parameters:
+    db.queryOne('SELECT * FROM some_table WHERE foo = :foo'
+              , {foo: 123}
+              , function(err, row) {...})
+
+A more complicated example:
+
+    // Classic style with positional parameters:
+    db.update('INSERT INTO user'
+                  + ' (id, name, email, password_hash)'
+                  + ' VALUES '
+                  + ' ($1, $2, $3, $4)'
+               , [1, 'alice', 'alice@example.org', hash('t0ps3cret')]
+               , function(err, rowCount) { /* do something */ });
+    
+    // Same query with named parameters:
+    db.update('INSERT INTO user'
+                  + ' (id, name, email, password_hash)'
+                  + ' VALUES '
+                  + ' (:id, :name, :email, :passwordHash)'
+               , {id: 1, name: 'alice', email: 'alice@example.org', passwordHash: hash('t0ps3cret')}
+               , function(err, rowCount) { /* do something */ });
+
+Another example with a model object:
+
+    var widget = {
+      id: 12345,
+      name: 'My Widget',
+      type: 'xg17',
+      owner: 'me@example.org'
+    };
+    
+    // Classic style with positional parameters:
+    db.update('INSERT INTO widgets'
+                  + ' (id, name, type, owner)'
+                  + ' VALUES '
+                  + ' ($1, $2, $3, $4)'
+               , [widget.id, widget.name, widget.type, widget.owner]
+               , function(err, rowCount) { /* do something */ });
+    
+    // Same query with named parameters:
+    db.update('INSERT INTO widgets'
+                  + ' (id, name, type, owner)'
+                  + ' VALUES '
+                  + ' (:id, :name, :type, :owner)'
+               // We can just pass in the object as is:
+               , widget
+               , function(err, rowCount) { /* do something */ });
 
 # API
 
