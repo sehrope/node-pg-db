@@ -21,3 +21,8 @@ describe 'db.queryOne', () ->
     db.queryOne 'SELECT :foo::text AS x, :bar::text AS y', {foo: 'foobar'}, (err, row) ->
       expect(err).to.be.ok()
       done()
+
+  it 'should allow classic numbered parameters', (done) ->
+    db.queryOne 'SELECT $1::text', ['test'], (err, row) ->
+      expect(err).to.be.null()
+      done()

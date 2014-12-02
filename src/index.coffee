@@ -251,7 +251,7 @@ class DB
     startedAt = new Date()
     stack = new Error().stack
 
-    if typeof(params) == 'object'
+    if params and !Array.isArray(params)
       try
         parsedSql = parse(sql)
         params = np.convertParamValues(parsedSql, params)
