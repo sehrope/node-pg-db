@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "async": "^0.9",
-    "pg.js": "^3",
+    "pg": "^4",
     "rand-token": "^0.2"
   },
   "devDependencies": {

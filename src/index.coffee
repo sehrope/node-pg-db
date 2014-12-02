@@ -1,4 +1,4 @@
-pg = require 'pg.js'
+pg = require 'pg'
 domain = require 'domain'
 async = require 'async'
 uid = require('rand-token').uid
