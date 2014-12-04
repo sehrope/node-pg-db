@@ -123,14 +123,14 @@ describe 'create a new DB with a null DATABASE_URL', () ->
 describe 'db.end()', () ->
   it 'should close the connections in the pool even if it is usused', (done) ->
     # Add a '?' to make the URL unique:
-    db = require(libPath)(process.env.DATABASE_URL + '?')
+    db = require(libPath)(process.env.DATABASE_URL + '?foo=bar')
     async.series [
       (cb) -> db.end cb
     ], done
 
   it 'should close the connections in the pool', (done) ->
     # Add a '?' to make the URL unique:
-    db = require(libPath)(process.env.DATABASE_URL + '?')
+    db = require(libPath)(process.env.DATABASE_URL + '?foo=bar')
     async.series [
       (cb) -> db.query 'SELECT 1', cb
       (cb) -> db.end cb

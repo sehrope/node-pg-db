@@ -38,12 +38,12 @@ describe 'db.tx', () ->
   it 'should not have _tx defined on the domain after the transaction completes', (done) ->
     db.tx noop, (err) ->
       expect(err).to.be.not.ok()
-      expect(process.domain?._tx).to.be.not.ok()
+      expect(process.domain?[db.txKey]).to.be.not.ok()
       done()
 
   it 'should have _tx defined on the domain during the transaction', (done) ->
     db.tx (cb) ->
-      expect(process.domain._tx).to.be.ok()
+      expect(process.domain?[db.txKey]).to.be.ok()
       cb()
     , (err) ->
       expect(err).to.be.not.ok()
@@ -219,3 +219,50 @@ describe 'db.tx', () ->
           expect(err).to.be.not.ok()
           expect(row.count).to.be.equal(0)
           done()
+
+describe 'nested instances with different configs', () ->
+  txIdSql = 'SELECT txid_current() AS tx'
+  # These two URLs should appear different due to the '?':
+  dbOne = require(libPath)(process.env.DATABASE_URL)
+  dbTwo = require(libPath)(process.env.DATABASE_URL + '?')
+
+  it 'should be allowed', (done) ->
+    dbOne.tx.series [
+      (cb) -> dbOne.queryOne 'SELECT 1 AS x', cb
+      (cb) -> dbTwo.queryOne 'SELECT 1 AS x', cb
+      (cb) -> dbOne.queryOne 'SELECT 1 AS x', cb
+    ], (err, results) ->
+      expect(err).to.be.null()
+      expect(results[0].x).to.be.equal(1)
+      expect(results[1].x).to.be.equal(1)
+      expect(results[2].x).to.be.equal(1)
+      done()
+
+  it 'should respect the correct DB client', (done) ->
+    dbOne.tx.series [
+      (cb) -> dbOne.queryOne txIdSql, cb
+      (cb) -> dbTwo.queryOne txIdSql, cb
+      (cb) -> dbOne.queryOne txIdSql, cb
+    ], (err, results) ->
+      expect(err).to.be.null()
+      txIdOne = results[0].tx
+      txIdTwo = results[1].tx
+      txIdOneCopy = results[2].tx
+      expect(txIdOne).to.be.not.equal(txIdTwo)
+      expect(txIdOne).to.be.equal(txIdOneCopy)
+      done()
+
+  it 'should not reuse existing transactions', (done) ->
+    dbOne.tx.series [
+      (cb) -> dbOne.queryOne txIdSql, cb
+      (cb) ->
+        if dbTwo.tx.active
+          return cb(new Error('Transaction is active in dbTwo'))
+        return cb(null)
+      (cb) -> dbOne.queryOne txIdSql, cb
+    ], (err, results) ->
+      expect(err).to.be.null()
+      txIdOne = results[0].tx
+      txIdOneCopy = results[2].tx
+      expect(txIdOne).to.be.equal(txIdOneCopy)
+      done()

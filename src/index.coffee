@@ -46,8 +46,6 @@ asyncIgnorify = (cb) ->
       callback()
 
 class DB
-  _listeners: {}
-
   ###
   Creates a new instance.
 
@@ -56,7 +54,8 @@ class DB
   ###
   constructor: (@config, @opts = {}) ->
     @poolKey = JSON.stringify(config)
-    @txKey = '_tx'
+    @txKey = '_tx-' + @poolKey
+    @_listeners = {}
 
     ###
     Execute task in a transaction.
