@@ -1,3 +1,7 @@
+# pg-db
+
+[![NPM](https://nodei.co/npm/pg-db.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/pg-db/)
+
 # Overview
 Helper module atop [node-postgres](https://github.com/brianc/node-postgres) that adds transaction management, simpler query API, event hooks, and more.
 
