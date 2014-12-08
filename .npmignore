@@ -5,3 +5,4 @@ lib-cov
 cov
 coffeelint.json
 Makefile
+.travis.yml
