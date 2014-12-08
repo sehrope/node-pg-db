@@ -2,6 +2,8 @@
 
 [![NPM](https://nodei.co/npm/pg-db.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/pg-db/)
 
+[![Build Status](https://travis-ci.org/sehrope/node-pg-db.svg?branch=master)](https://travis-ci.org/sehrope/node-pg-db)
+
 # Overview
 Helper module atop [node-postgres](https://github.com/brianc/node-postgres) that adds transaction management, simpler query API, event hooks, and more.
 
