@@ -26,3 +26,35 @@ describe 'db.queryOne', () ->
     db.queryOne 'SELECT $1::text', ['test'], (err, row) ->
       expect(err).to.be.null()
       done()
+
+describe 'db.update', () ->
+  before (done) ->
+    async.series [
+      (cb) -> db.update 'CREATE TABLE IF NOT EXISTS test_db_update (x text)', cb
+      (cb) -> db.update 'DELETE FROM test_db_update', cb
+      (cb) -> db.update 'INSERT INTO test_db_update (x) VALUES (\'test\')', cb
+    ], done
+
+  it 'should allow for named parameters when used with literals', (done) ->
+    sql =
+      """
+      UPDATE test_db_update
+      SET x = :foo
+      WHERE x = 'test'
+      """
+    db.update sql, {foo: 'foobar'}, (err, rowCount) ->
+      expect(err).to.be.not.ok()
+      expect(rowCount).to.be.equal(1)
+      done()
+
+  it 'should allow for named parameters when used with literals', (done) ->
+    sql =
+      """
+      UPDATE test_db_update
+      SET x = 'test'
+      WHERE x = :foo
+      """
+    db.update sql, {foo: 'foobar'}, (err, rowCount) ->
+      expect(err).to.be.not.ok()
+      expect(rowCount).to.be.equal(1)
+      done()
