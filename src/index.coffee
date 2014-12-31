@@ -251,6 +251,7 @@ class DB
     stack = new Error().stack
 
     originalSql = sql
+    originalParams = params
     if params and !Array.isArray(params)
       try
         parsedSql = parse(sql)
@@ -265,6 +266,7 @@ class DB
       @emit 'execute',
         id: executeId
         sql: originalSql
+        originalParams: originalParams
         parsedSql: sql
         params: params
         tx: @tx.active
@@ -370,6 +372,9 @@ class DB
     else
       if cb then setImmediate cb
 
+
+cache = {}
+
 ###
 @param {object|string} config The connection confirg, defaults to process.env.DATABASE_URL
 @param {object} opts Additional options (optional)
@@ -379,4 +384,7 @@ module.exports = (config, opts) ->
   config ||= process.env.DATABASE_URL
   if !config
     throw new Error('config or process.env.DATABASE_URL is required')
-  return new DB(config, opts)
+  cacheKey = JSON.stringify(config)
+  if !cache[cacheKey]
+    cache[cacheKey] = new DB(config, opts)
+  return cache[cacheKey]
