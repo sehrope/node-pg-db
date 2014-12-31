@@ -19,7 +19,7 @@ skipCommentsAndQuotes = (sql, position) ->
       if position >= sql.length
         # Comment or quote is not closed properly
         return sql.length
-    position += skip.stop.length - 1
+    position += skip.stop.length
   return position
 
 parse = (sql) ->
