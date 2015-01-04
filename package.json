@@ -1,6 +1,6 @@
 {
   "name": "pg-db",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Transactions, named parameters, and more for node-postgres",
   "license": "MIT",
   "repository": {
