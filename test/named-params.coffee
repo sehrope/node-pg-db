@@ -78,3 +78,53 @@ describe 'named parameter parser', () ->
   it 'should reject when sql is not a string', () ->
     expectError () ->
       parsed = np.parse(12345)
+
+  it 'should skip -- style comments and parse bind variables that appear after them', () ->
+    parsed = np.parse('SELECT -- $foo\n 1, :bar')
+    expect(parsed.sql).to.be.equal('SELECT -- $foo\n 1, $1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+  it 'should skip quoted literals and parse bind variables that appear after them', () ->
+    parsed = np.parse('SELECT \'$foo\' 1, $bar')
+    expect(parsed.sql).to.be.equal('SELECT \'$foo\' 1, $1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+  it 'should skip quoted identifiers and parse bind variables that appear after them', () ->
+    parsed = np.parse('SELECT "$foo" 1, $bar')
+    expect(parsed.sql).to.be.equal('SELECT "$foo" 1, $1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+  it 'should skip postgres style casts and parse bind variables that appear after them', () ->
+    parsed = np.parse('SELECT blah::foo, :bar')
+    expect(parsed.sql).to.be.equal('SELECT blah::foo, $1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+
+
+  it 'should skip -- style comments and parse bind variables that appear before them', () ->
+    parsed = np.parse('SELECT :bar, -- $foo\n 1')
+    expect(parsed.sql).to.be.equal('SELECT $1, -- $foo\n 1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+  it 'should skip quoted literals and parse bind variables that appear before them', () ->
+    parsed = np.parse('SELECT $bar, \'$foo\' 1')
+    expect(parsed.sql).to.be.equal('SELECT $1, \'$foo\' 1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+  it 'should skip quoted identifiers and parse bind variables that appear before them', () ->
+    parsed = np.parse('SELECT $bar, "$foo" 1')
+    expect(parsed.sql).to.be.equal('SELECT $1, "$foo" 1')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
+
+  it 'should skip postgres style casts and parse bind variables that appear before them', () ->
+    parsed = np.parse('SELECT :bar, blah::foo')
+    expect(parsed.sql).to.be.equal('SELECT $1, blah::foo')
+    expect(parsed.numParams).to.be.equal(1)
+    expect(parsed.params[0].name).to.be.equal('bar')
