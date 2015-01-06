@@ -103,8 +103,6 @@ describe 'named parameter parser', () ->
     expect(parsed.numParams).to.be.equal(1)
     expect(parsed.params[0].name).to.be.equal('bar')
 
-
-
   it 'should skip -- style comments and parse bind variables that appear before them', () ->
     parsed = np.parse('SELECT :bar, -- $foo\n 1')
     expect(parsed.sql).to.be.equal('SELECT $1, -- $foo\n 1')
