@@ -29,8 +29,10 @@
   },
   "dependencies": {
     "async": "^0.9",
-    "pg": "^4",
     "rand-token": "^0.2"
+  },
+  "peerDependencies": {
+    "pg": "~4.x"
   },
   "devDependencies": {
     "chai": "^1.10",
@@ -38,6 +40,7 @@
     "coffee-script": "^1.8.0",
     "coffeelint": "^1.6.1",
     "jscoverage": "^0.5.9",
-    "mocha": "^2.0.1"
+    "mocha": "^2.0.1",
+    "pg": "^4.2.0"
   }
 }
