@@ -32,7 +32,7 @@ test-cov: compile-cov
 	rm -rf cov/coffee.html
 	mkdir -p cov
 	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov --require ./lib-cov/init.js $(TESTARGS) > cov/coffee.html
-	open cov/coffee.html
+	node_modules/.bin/opn cov/coffee.html
 
 compile-cov-js: compile
 	rm -rf lib-cov
@@ -42,6 +42,6 @@ test-cov-js: compile-cov-js
 	rm -rf cov/js.html
 	mkdir -p cov
 	COVERAGE=true foreman run --env=test/env node_modules/.bin/mocha --reporter html-cov  $(TESTARGS) > cov/js.html
-	open cov/js.html
+	node_modules/.bin/opn cov/js.html
 
 .PHONY: clean default build package publish lint test compile-cov test-cov compile-cov-js test-cov-js
