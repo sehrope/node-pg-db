@@ -266,9 +266,9 @@ class DB
       @emit 'execute',
         id: executeId
         sql: originalSql
-        originalParams: originalParams
+        params: originalParams
         parsedSql: sql
-        params: params
+        parsedParams: params
         tx: @tx.active
         stack: stack
         startedAt: startedAt
