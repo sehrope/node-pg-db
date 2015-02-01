@@ -53,7 +53,7 @@ class DB
   @param {object} opts Optional configuration properties.
   ###
   constructor: (@config, @opts = {}) ->
-    @poolKey = JSON.stringify(config)
+    @poolKey = JSON.stringify(@config)
     @txKey = '_tx-' + @poolKey
     @_listeners = {}
 
