@@ -23,6 +23,9 @@ matrix:
     - node_js: "0.10"
       addons:
         postgresql: "9.3"
+    - node_js: "0.10"
+      addons:
+        postgresql: "9.4"
     - node_js: "0.11"
       addons:
         postgresql: "9.1"
@@ -32,6 +35,9 @@ matrix:
     - node_js: "0.11"
       addons:
         postgresql: "9.3"
+    - node_js: "0.11"
+      addons:
+        postgresql: "9.4"
     - node_js: "iojs-v1"
       addons:
         postgresql: "9.1"
@@ -41,3 +47,6 @@ matrix:
     - node_js: "iojs-v1"
       addons:
         postgresql: "9.3"
+    - node_js: "iojs-v1"
+      addons:
+        postgresql: "9.4"
