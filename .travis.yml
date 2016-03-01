@@ -26,18 +26,9 @@ matrix:
     - node_js: "0.10"
       addons:
         postgresql: "9.4"
-    - node_js: "0.11"
+    - node_js: "0.10"
       addons:
-        postgresql: "9.1"
-    - node_js: "0.11"
-      addons:
-        postgresql: "9.2"
-    - node_js: "0.11"
-      addons:
-        postgresql: "9.3"
-    - node_js: "0.11"
-      addons:
-        postgresql: "9.4"
+        postgresql: "9.5"
     - node_js: "0.12"
       addons:
         postgresql: "9.1"
@@ -50,15 +41,30 @@ matrix:
     - node_js: "0.12"
       addons:
         postgresql: "9.4"
-    - node_js: "iojs-v1"
+    - node_js: "0.12"
       addons:
-        postgresql: "9.1"
-    - node_js: "iojs-v1"
+        postgresql: "9.5"
+    - node_js: "stable"
       addons:
         postgresql: "9.2"
-    - node_js: "iojs-v1"
+    - node_js: "stable"
       addons:
         postgresql: "9.3"
-    - node_js: "iojs-v1"
+    - node_js: "stable"
       addons:
         postgresql: "9.4"
+    - node_js: "stable"
+      addons:
+        postgresql: "9.5"
+    - node_js: "5"
+      addons:
+        postgresql: "9.2"
+    - node_js: "5"
+      addons:
+        postgresql: "9.3"
+    - node_js: "5"
+      addons:
+        postgresql: "9.4"
+    - node_js: "5"
+      addons:
+        postgresql: "9.5"
