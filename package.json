@@ -32,7 +32,7 @@
     "rand-token": "^0.2"
   },
   "peerDependencies": {
-    "pg": "~4.x"
+    "pg": ">= 4"
   },
   "devDependencies": {
     "chai": "^1.10",
