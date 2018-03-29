@@ -5,3 +5,4 @@ test/env
 lib-cov
 cov
 npm-debug.log
+package-lock.json
