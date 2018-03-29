@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "async": "^0.9",
-    "rand-token": "^0.2"
+    "rand-token": "^0.4.0"
   },
   "peerDependencies": {
     "pg": ">= 7"
