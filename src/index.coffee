@@ -54,6 +54,12 @@ class DB
   ###
   constructor: (@config, @opts = {}) ->
     @poolKey = JSON.stringify(@config)
+    if typeof(@config) == 'string'
+      @pool = new pg.Pool({
+        connectionString: @config
+      })
+    else
+      @pool = new pg.Pool(@config)
     @txKey = '_tx-' + @poolKey
     @_listeners = {}
 
@@ -224,7 +230,7 @@ class DB
 
   @params {function} cb The callback to be invoked with the connection, function(err, client, done)
   ###
-  connect: (cb) => pg.connect @config, cb
+  connect: (cb) => @pool.connect(cb)
 
   ###
   Low level function to execute a SQL command.
@@ -365,10 +371,10 @@ class DB
   @param {function} cb Optional callback to be invoked after connection pool is closed.
   ###
   end: (cb) =>
-    pool = pg.pools.all[@poolKey]
-    if pool
-      pool.drain () ->
-        pool.destroyAllNow cb || ->
+    cb = cb || () ->
+    if @pool
+      cache[@poolKey] = null;
+      @pool.end(cb)
     else
       if cb then setImmediate cb
 

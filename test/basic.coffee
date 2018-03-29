@@ -105,7 +105,7 @@ describe 'db.update', () ->
   it 'should return a row count for DML statements', (done) ->
     db.update 'CREATE TABLE IF NOT EXISTS pg_db_test (x text)', (err, rowCount) ->
       expect(err).to.be.null
-      expect(rowCount).to.be.a('number')
+      expect(rowCount).to.be.null;
       done()
 
 describe 'create a new DB with a null DATABASE_URL', () ->
