@@ -130,7 +130,7 @@ class DB
             # If defined, invoke the callback with the original error:
             cb?(err)
 
-        txd.on 'error', (err) =>
+        txd.on 'error', (err) ->
           exitTxDomain()
           # Propagate the error the parent domain
           if activeDomain
@@ -183,7 +183,7 @@ class DB
     for name in ['series', 'parallel', 'auto', 'waterfall']
       do (name) =>
         asyncFunc = async[name]
-        @tx[name] = (tasks, cb) =>
+        @tx[name] = (tasks, cb) ->
           task = (cb) -> asyncFunc tasks, cb
           execTx task, cb
 
@@ -302,7 +302,7 @@ class DB
       executeInternal(@tx.active.client, sql, params, cb)
     else
       # We're not in a transaction so use a random connection from the pool:
-      @connect (err, client, done) =>
+      @connect (err, client, done) ->
         if err then return cb(err)
         executeInternal client, sql, params, (err, result) ->
           # Return the connection to the pool, if there's an error it'll be discarded:
@@ -323,7 +323,7 @@ class DB
       # When called with two args assume that there are no parameters
       cb = params
       params = []
-    @execute sql, params, (err, result) =>
+    @execute sql, params, (err, result) ->
       cb(err, result?.rows)
 
   ###
@@ -342,7 +342,7 @@ class DB
       # When called with two args assume that there are no parameters
       cb = params
       params = []
-    @execute sql, params, (err, result) =>
+    @execute sql, params, (err, result) ->
       if result?.rows.length > 1
         return cb(new Error('Expected 1 row but result returned ' + result.rows.length + 'rows'))
       cb(err, result?.rows[0] || null)
@@ -362,7 +362,7 @@ class DB
       # When called with two args assume that there are no parameters
       cb = params
       params = []
-    @execute sql, params, (err, result) =>
+    @execute sql, params, (err, result) ->
       cb(err, result?.rowCount)
 
   ###
@@ -373,7 +373,7 @@ class DB
   end: (cb) =>
     cb = cb || () ->
     if @pool
-      cache[@poolKey] = null;
+      cache[@poolKey] = null
       @pool.end(cb)
     else
       if cb then setImmediate cb
